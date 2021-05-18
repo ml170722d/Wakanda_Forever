@@ -1,2 +1,5 @@
 \[3327\ Summer\ Camp\]\ Assignment.pdf
 *.docx
+logs/
+build/
+.vscode/

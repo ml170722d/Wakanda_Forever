@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.4.22 <0.9.0;
+pragma solidity >=0.5.16 <0.9.0;
+
+// code was used from
+// https://github.com/OpenZeppelin/openzeppelin-contracts/tree/9b3710465583284b8c4c5d2245749246bb2e0094
 
 /**
  * @title ERC20 interface
