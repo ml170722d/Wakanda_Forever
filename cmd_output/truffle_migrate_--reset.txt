@@ -1,0 +1,73 @@
+
+Compiling your contracts...
+===========================
+> Compiling .\contracts\ERC20Token.sol
+> Compiling .\contracts\IERC20.sol
+> Compiling .\contracts\SafeMath.sol
+> Artifacts written to D:\Random\3327\Wakanda election\build\contracts
+> Compiled successfully using:
+   - solc: 0.5.16+commit.9c3226ce.Emscripten.clang
+
+
+
+Starting migrations...
+======================
+> Network name:    'development'
+> Network id:      5777
+> Block gas limit: 6721975 (0x6691b7)
+
+
+1_initial_migration.js
+======================
+
+   Replacing 'Migrations'
+   ----------------------
+   > transaction hash:    0xefc0d41fc98ad594ed10d918a61d9200fe3f4d8693b85614a2515a9dc22c97bb
+   > Blocks: 0            Seconds: 0
+   > contract address:    0x4eB1Fc8FE2Ddf80a00E027B7F70338D3da52909F
+   > block number:        422
+   > block timestamp:     1621549456
+   > account:             0xdb7dbd67C8D66C1D9345572F79CA311eE5D9FbE2
+   > balance:             98.2780125
+   > gas used:            191943 (0x2edc7)
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.00383886 ETH
+
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:          0.00383886 ETH
+
+
+2_initial_migration.js
+======================
+
+   Replacing 'WKND'
+   ----------------
+   > transaction hash:    0x2398049485308c4a595fd0cf8bafba2a2365c8b57fdb43b623812cdc0b66d868
+   > Blocks: 0            Seconds: 0
+   > contract address:    0x8E7E761098A803eCCC4b925F3385dFcAA4E1e610
+   > block number:        424
+   > block timestamp:     1621549457
+   > account:             0xdb7dbd67C8D66C1D9345572F79CA311eE5D9FbE2
+   > balance:             98.24511474
+   > gas used:            1602550 (0x1873f6)
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.032051 ETH
+
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:            0.032051 ETH
+
+
+Summary
+=======
+> Total deployments:   2
+> Final cost:          0.03588986 ETH
+
+
