@@ -12,7 +12,6 @@ contract WKND is ERC20Token {
 
     //----------------------------------------------------------------
     struct Candidate {
-        // int8 place;
         uint256 votes;
         bool running;
     }
@@ -23,10 +22,10 @@ contract WKND is ERC20Token {
 
     event NewChallenger(address candidate);
     event CandidateAdded(address candidate);
-    event VoteFor(address candidate);
+    event VoteFor(address voter, address candidate);
 
     uint256 private constant TOP_LIST_SIZE = 3;
-    uint256[TOP_LIST_SIZE] public voteNum;
+    address[] public topList;
 
     //----------------------------------------------------------------
     //----------------------------------------------------------------
@@ -48,14 +47,14 @@ contract WKND is ERC20Token {
 
     function vote(address _cand, uint256 amount) external returns (address) {
         // check conditions
-        require(this.balanceOf(msg.sender) >= 1, "Insufficient funds to vote");
         require(voteLog[msg.sender] == address(0), "Alredy voted");
+        require(this.balanceOf(msg.sender) >= 1, "Insufficient funds to vote");
 
-        require(_cand != msg.sender, "Candidates can't vote");
         require(
             candidats[_cand].running == true,
             "Candidate is not in election"
         );
+        require(_cand != msg.sender, "Candidates can't vote for themselves");
 
         // log voter choice
         voteLog[msg.sender] = _cand;
@@ -64,39 +63,64 @@ contract WKND is ERC20Token {
         this.transferFrom(msg.sender, _cand, amount);
         updateTopList(_cand);
 
-        emit VoteFor(_cand);
+        emit VoteFor(msg.sender, _cand);
     }
 
     function updateTopList(address _cand) internal {
-        for (uint256 i = 0; i < voteNum.length; i++) {
-            if (voteNum[i] < candidats[_cand].votes) {
-                uint256 tmp = voteNum[i];
-                voteNum[i] = candidats[_cand].votes;
-                for (uint256 j = i + 1; j < voteNum.length; j++) {
-                    uint256 tmp2 = voteNum[j];
-                    voteNum[j] = tmp;
-                    tmp = tmp2;
+        bool _emit = false;
+        if (topList.length < 3) {
+            topList.push(_cand);
+            _emit = true;
+        } else {
+            bool isOnList = false;
+            for (uint256 i = 0; i < topList.length; i++) {
+                if (topList[i] == _cand) {
+                    isOnList = true;
+                    break;
                 }
-
-                emit NewChallenger(_cand);
-                break;
+            }
+            if (!isOnList) {
+                if (
+                    candidats[topList[TOP_LIST_SIZE - 1]].votes <
+                    candidats[_cand].votes
+                ) {
+                    topList[TOP_LIST_SIZE - 1] = _cand;
+                }
             }
         }
+        if (_emit || sortList()) {
+            emit NewChallenger(_cand);
+        }
+    }
+
+    function sortList() internal returns (bool) {
+        bool change = false;
+        for (uint256 i = 0; i < topList.length - 1; i++) {
+            for (uint256 j = i + 1; j < topList.length; j++) {
+                if (candidats[topList[i]].votes < candidats[topList[j]].votes) {
+                    address tmp = topList[i];
+                    topList[i] = topList[j];
+                    topList[j] = tmp;
+                    change = true;
+                }
+            }
+        }
+        return change;
     }
 
     function winningCandidates()
         external
         view
-        returns (address[TOP_LIST_SIZE] memory _list)
+        returns (address[] memory _list)
     {
-        uint256 index = 0;
-        for (uint256 i = 0; i < voteNum.length; i++) {
-            for (uint256 j = 0; j < candidatsAddresses.length; j++) {
-                if (voteNum[i] == candidats[candidatsAddresses[j]].votes) {
-                    _list[index++] = candidatsAddresses[j];
-                    break;
-                }
-            }
-        }
+        _list = topList;
+    }
+
+    function getCandidates() external view returns (address[] memory) {
+        return candidatsAddresses;
+    }
+
+    function getAddress() external view returns (address) {
+        return address(this);
     }
 }
