@@ -3,3 +3,5 @@
 logs/
 build/
 .vscode/
+random.txt
+node_modules

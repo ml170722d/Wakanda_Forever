@@ -93,9 +93,9 @@ contract ERC20Token is IERC20 {
         address to,
         uint256 value
     ) external returns (bool) {
-        require(value <= _balances[from]);
-        require(value <= _allowed[from][msg.sender]);
-        require(to != address(0));
+        require(value <= _balances[from], "Insufficient funds for transfer");
+        require(value <= _allowed[from][msg.sender], "Spender is not allowed to spend");
+        require(to != address(0), "Destination address is 0");
 
         _balances[from] = _balances[from].sub(value);
         _balances[to] = _balances[to].add(value);
