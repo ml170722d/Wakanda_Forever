@@ -18,11 +18,16 @@ contract WKND is ERC20Token {
     mapping(address => Candidate) private candidats;
     address[] private candidatsAddresses;
 
-    mapping(address => address) voteLog;
+    struct Voter {
+        bool registerd;
+        bool voted;
+        address who;
+    }
+    mapping(address => Voter) voteLog;
 
     event NewChallenger(address candidate);
     event CandidateAdded(address candidate);
-    event VoteFor(address voter, address candidate);
+    event Vote(address voter, address candidate);
 
     uint256 private constant TOP_LIST_SIZE = 3;
     address[] public topList;
@@ -45,25 +50,36 @@ contract WKND is ERC20Token {
         emit CandidateAdded(_cand);
     }
 
-    function vote(address _cand, uint256 amount) external returns (address) {
+    function vote(address _cand, uint256 amount) external {
+        address _voter = msg.sender;
+
         // check conditions
-        require(voteLog[msg.sender] == address(0), "Alredy voted");
-        require(this.balanceOf(msg.sender) >= 1, "Insufficient funds to vote");
+        require(voteLog[_voter].registerd == true, "Voter is not registered");
+        require(voteLog[_voter].voted == false, "Voter already voted");
+        require(this.balanceOf(_voter) >= 1, "Insufficient funds to vote");
 
         require(
             candidats[_cand].running == true,
             "Candidate is not in election"
         );
-        require(_cand != msg.sender, "Candidates can't vote for themselves");
+        require(_cand != _voter, "Candidates can't vote for themselves");
 
         // log voter choice
-        voteLog[msg.sender] = _cand;
+        voteLog[_voter].voted = true;
+        voteLog[_voter].who = _cand;
         candidats[_cand].votes += amount;
 
-        this.transferFrom(msg.sender, _cand, amount);
+        this.transferFrom(_voter, _cand, amount);
         updateTopList(_cand);
 
-        emit VoteFor(msg.sender, _cand);
+        emit Vote(_voter, _cand);
+    }
+
+    function register(address _voter) external{
+        require(voteLog[_voter].registerd == false, "Voter already registered");
+
+        voteLog[_voter].registerd = true;
+        this.transferFrom(msg.sender, _voter, 1);
     }
 
     function updateTopList(address _cand) internal {
