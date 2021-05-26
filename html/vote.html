@@ -1,0 +1,85 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vote</title>
+</head>
+
+<body onload="getCand()">
+    <form action="http://localhost:8081/vote" method="POST">
+        <ul id="candList" style="list-style-type: none;"></ul><br>
+        <input type="text" name="voter" placeholder="Etherium address" required><br>
+        <input type="number" name="amount" value="1" required><br>
+        <button type="submit">Vote</button>
+    </form>
+    <div>
+        <button onclick="getTop3()">Top 3</button><br>
+        <ol id="top3"></ol>
+    </div>
+
+    <script>
+        function getCand() {
+            let list = document.getElementById('candList');
+            fetch('http://localhost:8081/getCandidates', {
+                method: "GET"
+            }).then(res => {
+                return res.json();
+            }).then(list => {
+                let candList = document.getElementById('candList');
+                for (let i = 0; i < list.length; i++) {
+                    candList.appendChild(make_ul_li(list[i]));
+                }
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+
+        function make_ul_li(val) {
+            let li = document.createElement('li');
+
+            let radio = document.createElement('input');
+            radio.setAttribute('type', 'radio');
+            radio.setAttribute('name', 'cand');
+            radio.setAttribute('value', val);
+            radio.setAttribute('required', '');
+
+            let label = document.createElement('label');
+            label.setAttribute('for', val);
+            label.innerHTML = val;
+
+            li.appendChild(radio);
+            li.appendChild(label);
+
+            return li;
+        }
+
+        function make_ol_li(val) {
+            let li = document.createElement('li');
+            let label = document.createElement('label');
+            label.innerHTML = val;
+
+            li.appendChild(label);
+            return li;
+        }
+
+        function getTop3() {
+            fetch('http://localhost:8081/winningCandidates', {
+                method: "GET"
+            }).then(res => {
+                return res.json();
+            }).then(list => {
+                let top3 = document.getElementById('top3');
+                top3.innerHTML = '';
+                for (let i = 0; i < list.length; i++) {
+                    top3.appendChild(make_ol_li(list[i]));
+                }
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+    </script>
+</body>
+
+</html>
