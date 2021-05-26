@@ -1,13 +1,13 @@
 const express = require('express');
 const Web3 = require('web3');
 const WKND = require('./build/contracts/WKND.json');
+const { config } = require('dotenv');
+config();
 
 const app = express();
 var serverAddr;
-const blockchain = 'ws://localhost:7545';
-const WKND_address = '0x9996F23545979bC3959B818926a56A541FdD71C5';
-const web3 = new Web3(Web3.givenProvider || blockchain);
-var wknd = new web3.eth.Contract(WKND.abi, WKND_address);
+const web3 = new Web3(Web3.givenProvider || process.env.blockchain);
+const wknd = new web3.eth.Contract(WKND.abi, process.env.WKND_address);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -24,7 +24,7 @@ app.post('/addCandidate', async (req, res) => {
         .then(r => {
             res.sendStatus(200);
         }).catch(err => {
-            console.debug(err);
+            console.error(err);
             const txHash = Object.keys(err.data)[0];
             res.status(401).send(err.data[txHash].reason);
         });
@@ -35,15 +35,11 @@ app.get('/getCandidates', async (req, res) => {
     res.json(list);
 });
 
-// app.get('/getAddress', async (req, res) => {
-//     let addr = await wknd.methods.getAddress().call();
-//     res.json(addr);
-// });
-
 // TODO: cache data if connection is down
 app.post('/vote', async (req, res) => {
+
     const MIN_GAS = 1000000;
-    wknd.methods.approve(WKND_address, req.body.amount).send({
+    wknd.methods.approve(process.env.WKND_address, req.body.amount).send({
         from: req.body.voter,
         gas: MIN_GAS
     }).then(() => {
@@ -53,12 +49,12 @@ app.post('/vote', async (req, res) => {
         }).then(r => {
             res.sendStatus(200);
         }).catch(err => {
-            console.debug(err);
+            console.error(err);
             const txHash = Object.keys(err.data)[0];
             res.status(401).send(err.data[txHash].reason);
         });
     }).catch(err => {
-        console.debug(err);
+        console.error(err);
         const txHash = Object.keys(err.data)[0];
         res.status(401).send(err.data[txHash].reason);
     });
@@ -66,34 +62,36 @@ app.post('/vote', async (req, res) => {
 
 // TODO: cache data if connection is down
 app.post('/register', async (req, res) => {
-    wknd.methods.approve(WKND_address, 1).send({ from: serverAddr })
+    wknd.methods.approve(process.env.WKND_address, 1).send({ from: serverAddr })
         .then(() => {
             wknd.methods.register(req.body.voter).send({ from: serverAddr })
                 .then(r => {
+                    // res.sendStatus(200);
                     res.sendStatus(200);
                 }).catch(err => {
-                    console.debug(err);
+                    console.error(err);
                     const txHash = Object.keys(err.data)[0];
                     res.status(401).send(err.data[txHash].reason);
                 });
         }).catch(err => {
-            console.debug(err);
+            console.error(err);
             const txHash = Object.keys(err.data)[0];
             res.status(401).send(err.data[txHash].reason);
         });
 });
 
 app.get('/regPage', (req, res) => {
-
+    res.sendFile(`${__dirname}/html/register.html`);
 });
 
 app.get('/votePage', (req, res) => {
-
+    res.sendFile(`${__dirname}/html/vote.html`);
 });
 
 const serverListener = app.listen(port, async () => {
-    console.log(`Server running on port ${port}`);
     let acc = await web3.eth.getAccounts();
     serverAddr = acc[0];
+
+    console.log(`Server running on port ${port}`);
 });
 
