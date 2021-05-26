@@ -85,7 +85,13 @@ contract WKND is ERC20Token {
     function updateTopList(address _cand) internal {
         bool _emit = false;
         if (topList.length < 3) {
-            topList.push(_cand);
+            bool insert = true;
+            for (uint256 i = 0; i < topList.length; i++){
+                if (_cand == topList[i]) insert = false;
+            }
+            
+            if (insert) topList.push(_cand);
+            
             _emit = true;
         } else {
             bool isOnList = false;
